@@ -1,0 +1,45 @@
+#!/bin/sh
+
+set -e
+
+usage() {
+    echo "usage: toarchive file"
+    echo ""
+    echo "Rename a file to be archived by adding prefix with date in ISO format"
+    echo "Example:"
+    echo ""
+    echo " 'toarchive foo.docx'"
+    echo "Renames to: 2026-08-31_foo.docx"
+}
+
+if [ $# -eq 0 ]; then
+    echo "Error: No file specified" >&2
+    echo "" >&2
+    usage >&2
+    exit 1
+fi
+
+
+if [ ! -f "$1" ]; then
+    echo "Error: Can't find '$1'" >&2
+    echo "" >&2
+    usage >&2
+    exit 1
+fi
+
+prefix="$(date "+%Y-%m-%d")"
+
+# handle file paths in case an inner file is passed
+dir=$(dirname -- "$1")
+base=$(basename -- "$1")
+newname="${dir}/${prefix}_${base}"
+
+if [ -e "$newname" ]; then
+    echo "Error: Target file '$newname' already exists." >&2
+    exit 1
+fi
+
+mv -i "$1" "$newname"
+echo "$1 ---> $newname"
+
+exit 0
